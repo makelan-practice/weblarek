@@ -1,5 +1,5 @@
-import { Component } from './base/Component';
-import { ensureElement } from '../utils/utils';
+import { Component } from "./base/Component";
+import { ensureElement } from "../utils/utils";
 
 interface IBasketView {
   items: HTMLElement[];
@@ -22,12 +22,15 @@ export class Basket extends Component<IBasketView> {
 
   constructor(container: HTMLElement, actions: BasketActions) {
     super(container);
-    this._list = ensureElement<HTMLElement>('.basket__list', this.container);
-    this._total = ensureElement<HTMLElement>('.basket__price', this.container);
-    this._submit = ensureElement<HTMLButtonElement>('.basket__button', this.container);
-    this._empty = ensureElement<HTMLElement>('.basket__empty', this.container);
+    this._list = ensureElement<HTMLElement>(".basket__list", this.container);
+    this._total = ensureElement<HTMLElement>(".basket__price", this.container);
+    this._submit = ensureElement<HTMLButtonElement>(
+      ".basket__button",
+      this.container
+    );
+    this._empty = ensureElement<HTMLElement>(".basket__empty", this.container);
 
-    this._submit.addEventListener('click', (event: MouseEvent) => {
+    this._submit.addEventListener("click", (event: MouseEvent) => {
       event.preventDefault();
       actions.onSubmit();
     });
@@ -41,7 +44,7 @@ export class Basket extends Component<IBasketView> {
       this._list.replaceChildren(...nodes);
     } else {
       this._list.replaceChildren();
-      this._empty.textContent = 'Cart is empty';
+      this._empty.textContent = "Корзина пуста";
     }
   }
 
@@ -53,5 +56,3 @@ export class Basket extends Component<IBasketView> {
     this._submit.disabled = state;
   }
 }
-
-

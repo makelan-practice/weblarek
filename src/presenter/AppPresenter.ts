@@ -1,21 +1,24 @@
-import { Catalog } from '../models/Catalog';
-import { Cart } from '../models/Cart';
-import { Buyer } from '../models/Buyer';
-import { ShopAPI } from '../api/ShopAPI';
-import { Gallery } from '../components/Gallery';
-import { Header } from '../components/Header';
-import { Modal } from '../components/Modal';
-import { CatalogCard, PreviewCard } from '../components/Card';
-import { Basket } from '../components/Basket';
-import { BasketItem } from '../components/BasketItem';
-import { OrderForm, IOrderFormState } from '../components/forms/OrderForm';
-import { ContactsForm, IContactsFormState } from '../components/forms/ContactsForm';
-import { Success } from '../components/Success';
-import { cloneTemplate } from '../utils/utils';
-import { IProduct, IOrderRequest } from '../types';
-import { IEvents } from '../components/base/Events';
+import { Catalog } from "../models/Catalog";
+import { Cart } from "../models/Cart";
+import { Buyer } from "../models/Buyer";
+import { ShopAPI } from "../api/ShopAPI";
+import { Gallery } from "../components/Gallery";
+import { Header } from "../components/Header";
+import { Modal } from "../components/Modal";
+import { CatalogCard, PreviewCard } from "../components/Card";
+import { Basket } from "../components/Basket";
+import { BasketItem } from "../components/BasketItem";
+import { OrderForm, IOrderFormState } from "../components/forms/OrderForm";
+import {
+  ContactsForm,
+  IContactsFormState,
+} from "../components/forms/ContactsForm";
+import { Success } from "../components/Success";
+import { cloneTemplate } from "../utils/utils";
+import { IProduct, IOrderRequest } from "../types";
+import { IEvents } from "../components/base/Events";
 
-type ModalView = 'preview' | 'basket' | 'order' | 'contacts' | 'success' | null;
+type ModalView = "preview" | "basket" | "order" | "contacts" | "success" | null;
 
 interface AppPresenterDeps {
   catalog: Catalog;
@@ -47,7 +50,16 @@ export class AppPresenter {
   protected successComponent?: Success;
   protected currentView: ModalView = null;
 
-  constructor({ catalog, cart, buyer, api, gallery, header, modal, events }: AppPresenterDeps) {
+  constructor({
+    catalog,
+    cart,
+    buyer,
+    api,
+    gallery,
+    header,
+    modal,
+    events,
+  }: AppPresenterDeps) {
     this.catalog = catalog;
     this.cart = cart;
     this.buyer = buyer;
@@ -76,17 +88,17 @@ export class AppPresenter {
   };
 
   protected subscribeToViewEvents() {
-    this.events.on('basket:open', () => this.openBasket());
-    this.events.on('basket:checkout', () => this.openOrderStep());
+    this.events.on("basket:open", () => this.openBasket());
+    this.events.on("basket:checkout", () => this.openOrderStep());
 
-    this.events.on<{ id: string }>('card:select', ({ id }) => {
+    this.events.on<{ id: string }>("card:select", ({ id }) => {
       const product = this.catalog.getItemById(id);
       if (product) {
         this.catalog.setPreview(product);
       }
     });
 
-    this.events.on<{ id: string }>('card:toggle-cart', ({ id }) => {
+    this.events.on<{ id: string }>("card:toggle-cart", ({ id }) => {
       const product = this.catalog.getItemById(id);
       if (!product || product.price === null) {
         return;
@@ -99,50 +111,62 @@ export class AppPresenter {
       this.modal.close();
     });
 
-    this.events.on<{ id: string }>('cart:item-remove', ({ id }) => {
-      const product = this.cart.getItems().find(item => item.id === id);
+    this.events.on<{ id: string }>("cart:item-remove", ({ id }) => {
+      const product = this.cart.getItems().find((item) => item.id === id);
       if (product) {
         this.cart.removeItem(product);
       }
     });
 
-    this.events.on<Partial<IOrderFormState>>('order:change', (data) => this.handleOrderChange(data));
-    this.events.on<IOrderFormState>('order:submit', () => this.openContactsStep());
+    this.events.on<Partial<IOrderFormState>>("order:change", (data) =>
+      this.handleOrderChange(data)
+    );
+    this.events.on<IOrderFormState>("order:submit", () =>
+      this.openContactsStep()
+    );
 
-    this.events.on<Partial<IContactsFormState>>('contacts:change', (data) => this.handleContactsChange(data));
-    this.events.on<IContactsFormState>('contacts:submit', () => this.submitOrder());
+    this.events.on<Partial<IContactsFormState>>("contacts:change", (data) =>
+      this.handleContactsChange(data)
+    );
+    this.events.on<IContactsFormState>("contacts:submit", () =>
+      this.submitOrder()
+    );
   }
 
   protected subscribeToModelEvents() {
-    this.catalog.on('items:changed', ({ items }: { items: IProduct[] }) => {
+    this.catalog.on("items:changed", ({ items }: { items: IProduct[] }) => {
       this.renderCatalog(items);
     });
 
-    this.catalog.on('preview:changed', ({ preview }: { preview: IProduct }) => {
+    this.catalog.on("preview:changed", ({ preview }: { preview: IProduct }) => {
       if (preview) {
         this.openPreview(preview);
       }
     });
 
-    this.cart.on('items:changed', () => {
+    this.cart.on("items:changed", () => {
       this.header.render({ counter: this.cart.getCount() });
-      if (this.currentView === 'basket' && this.basketComponent) {
+      if (this.currentView === "basket" && this.basketComponent) {
         this.updateBasketComponent();
       }
     });
   }
 
   protected loadCatalog() {
-    this.api.getProductList()
+    this.api
+      .getProductList()
       .then(({ items }) => this.catalog.setItems(items))
-      .catch((error) => console.error('Не удалось загрузить каталог', error));
+      .catch((error) => console.error("Не удалось загрузить каталог", error));
   }
 
   protected renderCatalog(items: IProduct[]) {
     const cardNodes = items.map((item) => {
-      const card = new CatalogCard(cloneTemplate<HTMLButtonElement>('#card-catalog'), {
-        onClick: () => this.events.emit('card:select', { id: item.id }),
-      });
+      const card = new CatalogCard(
+        cloneTemplate<HTMLButtonElement>("#card-catalog"),
+        {
+          onClick: () => this.events.emit("card:select", { id: item.id }),
+        }
+      );
 
       return card.render({
         id: item.id,
@@ -159,12 +183,16 @@ export class AppPresenter {
   protected openPreview(product: IProduct) {
     const isInCart = this.cart.contains(product.id);
     const isUnavailable = product.price === null;
-    const buttonTitle = isUnavailable ? 'Unavailable' : isInCart ? 'Remove from Cart' : 'Buy';
+    const buttonTitle = isUnavailable
+      ? "Unavailable"
+      : isInCart
+        ? "Удалить из корзины"
+        : "Купить";
 
-    const card = new PreviewCard(cloneTemplate<HTMLElement>('#card-preview'), {
+    const card = new PreviewCard(cloneTemplate<HTMLElement>("#card-preview"), {
       onButtonClick: () => {
         if (!isUnavailable) {
-          this.events.emit('card:toggle-cart', { id: product.id });
+          this.events.emit("card:toggle-cart", { id: product.id });
         }
       },
     });
@@ -181,13 +209,13 @@ export class AppPresenter {
     });
 
     this.modal.open(element);
-    this.currentView = 'preview';
+    this.currentView = "preview";
   }
 
   protected buildBasketItems(): HTMLElement[] {
     return this.cart.getItems().map((item, index) => {
-      const card = new BasketItem(cloneTemplate<HTMLElement>('#card-basket'), {
-        onDelete: () => this.events.emit('cart:item-remove', { id: item.id }),
+      const card = new BasketItem(cloneTemplate<HTMLElement>("#card-basket"), {
+        onDelete: () => this.events.emit("cart:item-remove", { id: item.id }),
       });
 
       return card.render({
@@ -208,8 +236,8 @@ export class AppPresenter {
   }
 
   protected openBasket() {
-    this.basketComponent = new Basket(cloneTemplate<HTMLElement>('#basket'), {
-      onSubmit: () => this.events.emit('basket:checkout'),
+    this.basketComponent = new Basket(cloneTemplate<HTMLElement>("#basket"), {
+      onSubmit: () => this.events.emit("basket:checkout"),
     });
 
     const element = this.basketComponent.render({
@@ -219,14 +247,17 @@ export class AppPresenter {
     });
 
     this.modal.open(element);
-    this.currentView = 'basket';
+    this.currentView = "basket";
   }
 
   protected openOrderStep() {
-    this.orderComponent = new OrderForm(cloneTemplate<HTMLFormElement>('#order'), {
-      onSubmit: (formData) => this.events.emit('order:submit', formData),
-      onChange: (data) => this.events.emit('order:change', data),
-    });
+    this.orderComponent = new OrderForm(
+      cloneTemplate<HTMLFormElement>("#order"),
+      {
+        onSubmit: (formData) => this.events.emit("order:submit", formData),
+        onChange: (data) => this.events.emit("order:change", data),
+      }
+    );
 
     const buyerData = this.buyer.getData();
     if (buyerData.payment) {
@@ -239,20 +270,20 @@ export class AppPresenter {
     const element = this.orderComponent.render({
       payment: buyerData.payment,
       address: buyerData.address,
-      errors: '',
+      errors: "",
     });
     this.updateOrderValidation();
     this.modal.open(element);
 
-    this.currentView = 'order';
+    this.currentView = "order";
   }
 
   protected handleOrderChange(data: Partial<IOrderFormState>) {
-    if (typeof data.payment !== 'undefined' && data.payment !== null) {
+    if (typeof data.payment !== "undefined" && data.payment !== null) {
       this.buyer.setPayment(data.payment);
     }
 
-    if (typeof data.address !== 'undefined') {
+    if (typeof data.address !== "undefined") {
       this.buyer.setAddress(data.address);
     }
 
@@ -262,31 +293,38 @@ export class AppPresenter {
   protected updateOrderValidation(message?: string) {
     if (!this.orderComponent) return;
     const error = message ?? this.getOrderError();
-    this.orderComponent.errors = error ?? '';
+    this.orderComponent.errors = error ?? "";
     this.orderComponent.valid = !error;
   }
 
   protected getOrderError(): string | null {
     const buyerData = this.buyer.getData();
     if (!buyerData.payment) {
-      return 'Выберите способ оплаты';
+      return "Выберите способ оплаты";
     }
     if (!buyerData.address) {
-      return 'Укажите адрес доставки';
+      return "Укажите адрес доставки";
     }
     return null;
   }
 
   protected openContactsStep() {
-    if (!this.orderComponent || !this.orderComponent.value.payment || !this.orderComponent.value.address) {
+    if (
+      !this.orderComponent ||
+      !this.orderComponent.value.payment ||
+      !this.orderComponent.value.address
+    ) {
       this.updateOrderValidation();
       return;
     }
 
-    this.contactsComponent = new ContactsForm(cloneTemplate<HTMLFormElement>('#contacts'), {
-      onSubmit: (formData) => this.events.emit('contacts:submit', formData),
-      onChange: (data) => this.events.emit('contacts:change', data),
-    });
+    this.contactsComponent = new ContactsForm(
+      cloneTemplate<HTMLFormElement>("#contacts"),
+      {
+        onSubmit: (formData) => this.events.emit("contacts:submit", formData),
+        onChange: (data) => this.events.emit("contacts:change", data),
+      }
+    );
 
     const buyerData = this.buyer.getData();
     if (buyerData.email) this.contactsComponent.email = buyerData.email;
@@ -295,19 +333,19 @@ export class AppPresenter {
     const element = this.contactsComponent.render({
       email: buyerData.email,
       phone: buyerData.phone,
-      errors: '',
+      errors: "",
     });
     this.updateContactsValidation();
     this.modal.open(element);
 
-    this.currentView = 'contacts';
+    this.currentView = "contacts";
   }
 
   protected handleContactsChange(data: Partial<IContactsFormState>) {
-    if (typeof data.email !== 'undefined') {
+    if (typeof data.email !== "undefined") {
       this.buyer.setEmail(data.email);
     }
-    if (typeof data.phone !== 'undefined') {
+    if (typeof data.phone !== "undefined") {
       this.buyer.setPhone(data.phone);
     }
     this.updateContactsValidation();
@@ -316,17 +354,17 @@ export class AppPresenter {
   protected updateContactsValidation(message?: string) {
     if (!this.contactsComponent) return;
     const error = message ?? this.getContactsError();
-    this.contactsComponent.errors = error ?? '';
+    this.contactsComponent.errors = error ?? "";
     this.contactsComponent.valid = !error;
   }
 
   protected getContactsError(): string | null {
     const buyerData = this.buyer.getData();
     if (!buyerData.email) {
-      return 'Укажите email';
+      return "Укажите email";
     }
     if (!buyerData.phone) {
-      return 'Укажите телефон';
+      return "Укажите телефон";
     }
     return null;
   }
@@ -347,9 +385,10 @@ export class AppPresenter {
     };
 
     this.contactsComponent.valid = false;
-    this.contactsComponent.errors = 'Отправляем заказ...';
+    this.contactsComponent.errors = "Отправляем заказ...";
 
-    this.api.createOrder(order)
+    this.api
+      .createOrder(order)
       .then((response) => {
         this.cart.clear();
         this.buyer.clear();
@@ -361,17 +400,18 @@ export class AppPresenter {
   }
 
   protected showSuccess(total: number) {
-    this.successComponent = new Success(cloneTemplate<HTMLElement>('#success'), {
-      onClose: () => this.modal.close(),
-    });
+    this.successComponent = new Success(
+      cloneTemplate<HTMLElement>("#success"),
+      {
+        onClose: () => this.modal.close(),
+      }
+    );
 
     const element = this.successComponent.render({
       total,
     });
 
     this.modal.open(element);
-    this.currentView = 'success';
+    this.currentView = "success";
   }
 }
-
-
