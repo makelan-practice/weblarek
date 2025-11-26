@@ -210,3 +210,63 @@ Presenter - презентер содержит основную логику п
 - `getProductList(): Promise<IProductListResponse>` - выполняет GET запрос на эндпоинт `/product/` и возвращает промис с объектом, содержащим массив товаров
 - `createOrder(order: IOrderRequest): Promise<IOrderResponse>` - выполняет POST запрос на эндпоинт `/order` и передает в него данные заказа, полученные в параметрах метода. Возвращает промис с результатом создания заказа
 
+## View Layer
+
+- `Modal` (`src/components/Modal.ts`)
+  - **Поля**: `_closeButton` (кнопка «X»), `_content` (контейнер содержимого), `_actions` (набор колбэков, в том числе `onClose`).
+  - **Методы**: `open(node)` переносит компонент в модальное окно и добавляет модификатор `modal_active`; `close()` снимает модификатор, очищает контент и вызывает `onClose`; `set content` обновляет DOM внутри `_content`; `setCloseHandler(handler)` — переопределяет обработчик закрытия.
+- `Gallery` (`src/components/Gallery.ts`)
+  - **Поля**: наследованный `container` — корневой `<main class="gallery">`.
+  - **Методы**: сеттер `items` принимает массив карточек и делает `replaceChildren`, полностью обновляя каталог.
+- Семейство карточек:
+  - `Card` (`src/components/Card.ts`)
+    - **Поля**: `_title`, `_category`, `_image`, `_description`, `_price`, `_button`, `_index`, `_deleteButton` — ссылки на элементы шаблона.
+    - **Методы**: сеттеры `title`, `category`, `image`, `description`, `price`, `buttonTitle`, `buttonDisabled`, `buttonHidden`, `index` обновляют DOM; конструктор вешает обработчики `onClick`, `onButtonClick`, `onDelete`.
+  - `CatalogCard`, `PreviewCard`, `BasketItem` — наследники для шаблонов списка, превью и корзины, переиспользуют логику родителя, а Presenter задаёт им разные обработчики.
+- `Header` (`src/components/Header.ts`)
+  - **Поля**: `_basketButton` и `_counter`.
+  - **Методы**: сеттер `counter` выводит количество товаров; конструктор назначает обработчик `onBasketClick`, который генерирует событие открытия корзины.
+- `Basket` (`src/components/Basket.ts`)
+  - **Поля**: `_list` (список товаров), `_total` (итоговая сумма), `_submit` (кнопка оформления), `_empty` (сообщение «Cart is empty»).
+  - **Методы**: сеттер `items` переключает видимость `_list` и `_empty`, заменяет содержимое списка; `total` форматирует сумму в синапсах; `buttonDisabled` блокирует/разблокирует checkout.
+- `Form` (`src/components/forms/Form.ts`)
+  - **Поля**: `_submit`, `_errors`, `_actions`.
+  - **Методы**: абстрактный геттер `value`; сеттеры `valid` и `errors` управляют кнопкой и сообщением об ошибке; `notifyChange(payload)` вызывает обработчик `onChange`.
+  - **OrderForm**: `_paymentButtons`, `_addressInput`, `_state` (хранит `payment` и `address`). Сеттер `payment` управляет модификаторами кнопок и публикует изменение; `address` синхронизирует инпут и внутреннее состояние.
+  - **ContactsForm**: `_emailInput`, `_phoneInput`, `_state`. Сеттеры `email` и `phone` обновляют значения и отправляют частичные данные.
+- `Success` (`src/components/Success.ts`)
+  - **Поля**: `_description` (текст с суммой), `_button` (кнопка «За новыми покупками!»).
+  - **Методы**: сеттер `total` подставляет списанную сумму; конструктор навешивает обработчик `onClose`.
+
+## Events
+
+События моделей генерируются через их собственные `EventEmitter`, а пользовательские действия публикуются в общем брокере, созданном в `main.ts`.
+
+**Модели**
+- `catalog.emit('items:changed', { items })` — загружен или обновлен список товаров.
+- `catalog.emit('preview:changed', { preview })` — выбран товар для просмотра.
+- `cart.emit('items:changed', { items })` — изменился состав корзины (добавление, удаление, очистка).
+- `buyer.emit('data:changed', { data })` — изменены данные покупателя (адрес, контакты, способ оплаты или очистка).
+
+**Представления**
+- `card:select` `{ id }` — клик по карточке каталога.
+- `card:toggle-cart` `{ id }` — клик по кнопке покупки/удаления в карточке просмотра.
+- `cart:item-remove` `{ id }` — удаление товара из списка корзины.
+- `basket:open` — нажатие на иконку корзины в шапке.
+- `basket:checkout` — нажатие на кнопку оформления в корзине.
+- `order:change` `{ payment?, address? }` — изменение данных первой формы.
+- `order:submit` `{ payment, address }` — переход ко второй форме (кнопка Next).
+- `contacts:change` `{ email?, phone? }` — изменение данных второй формы.
+- `contacts:submit` `{ email, phone }` — нажатие на Pay/Оплатить.
+
+Каждое событие обрабатывается Presenter-ом и приводит к изменению модели данных или открытию нужного экрана.
+
+## Presenter
+
+`AppPresenter` (`src/presenter/AppPresenter.ts`) реализует слой Presenter. Он получает модели (`Catalog`, `Cart`, `Buyer`), API (`ShopAPI`), все представления и общий брокер событий. Подход:
+- Presenter подписывается на события моделей и обновляет UI только при изменении данных (перерисовка каталога, обновление счетчика корзины, синхронизация формы).
+- Presenter слушает события представлений и выполняет соответствующие сценарии: открывает модальные окна, переключает шаги оформления, синхронизирует формы с моделью `Buyer`, управляет корзиной и отправляет заказ.
+- В `main.ts` создается единственный экземпляр `EventEmitter`, который передается в Presenter и во view-компоненты через обработчики. Presenter не генерирует события, а только реагирует на них.
+
+Такое разделение поддерживает паттерн MVP: представления отвечают только за DOM, модели только за данные, а `AppPresenter` координирует их работу.
+
