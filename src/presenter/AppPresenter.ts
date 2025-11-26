@@ -184,7 +184,7 @@ export class AppPresenter {
     const isInCart = this.cart.contains(product.id);
     const isUnavailable = product.price === null;
     const buttonTitle = isUnavailable
-      ? "Unavailable"
+      ? "Недоступно"
       : isInCart
         ? "Удалить из корзины"
         : "Купить";
