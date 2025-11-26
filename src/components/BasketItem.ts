@@ -1,4 +1,4 @@
-import { Card, ICard, CardActions } from './Card';
+import { Card, ICard, CardActions } from "./Card";
 
 export interface IBasketItem extends ICard {
   index: number;
@@ -12,5 +12,3 @@ export class BasketItem extends Card {
     super(container, actions);
   }
 }
-
-

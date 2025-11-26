@@ -1,5 +1,5 @@
-import { Component } from './base/Component';
-import { ensureElement } from '../utils/utils';
+import { Component } from "./base/Component";
+import { ensureElement } from "../utils/utils";
 
 export interface IHeader {
   counter: number;
@@ -18,15 +18,19 @@ export class Header extends Component<IHeader> {
 
   constructor(container: HTMLElement, actions: HeaderActions) {
     super(container);
-    this._basketButton = ensureElement<HTMLButtonElement>('.header__basket', this.container);
-    this._counter = ensureElement<HTMLElement>('.header__basket-counter', this.container);
+    this._basketButton = ensureElement<HTMLButtonElement>(
+      ".header__basket",
+      this.container
+    );
+    this._counter = ensureElement<HTMLElement>(
+      ".header__basket-counter",
+      this.container
+    );
 
-    this._basketButton.addEventListener('click', () => actions.onBasketClick());
+    this._basketButton.addEventListener("click", () => actions.onBasketClick());
   }
 
   set counter(value: number) {
     this._counter.textContent = String(value);
   }
 }
-
-

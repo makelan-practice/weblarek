@@ -1,4 +1,4 @@
-import { Component } from './base/Component';
+import { Component } from "./base/Component";
 
 interface IGallery {
   items: HTMLElement[];
@@ -16,5 +16,3 @@ export class Gallery extends Component<IGallery> {
     this.container.replaceChildren(...nodes);
   }
 }
-
-

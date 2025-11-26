@@ -1,6 +1,6 @@
-import { Component } from './base/Component';
-import { ensureElement } from '../utils/utils';
-import { CDN_URL, categoryMap } from '../utils/constants';
+import { Component } from "./base/Component";
+import { ensureElement } from "../utils/utils";
+import { CDN_URL, categoryMap } from "../utils/constants";
 
 export interface ICard {
   id: string;
@@ -36,28 +36,38 @@ export class Card extends Component<ICard> {
 
   constructor(container: HTMLElement, actions: CardActions = {}) {
     super(container);
-    this._title = ensureElement<HTMLElement>('.card__title', this.container);
-    this._price = ensureElement<HTMLElement>('.card__price', this.container);
-    this._category = this.container.querySelector<HTMLElement>('.card__category') ?? undefined;
-    this._image = this.container.querySelector<HTMLImageElement>('.card__image') ?? undefined;
-    this._description = this.container.querySelector<HTMLElement>('.card__text') ?? undefined;
-    this._button = this.container.querySelector<HTMLButtonElement>('.card__button') ?? undefined;
-    this._index = this.container.querySelector<HTMLElement>('.basket__item-index') ?? undefined;
-    this._deleteButton = this.container.querySelector<HTMLButtonElement>('.basket__item-delete') ?? undefined;
+    this._title = ensureElement<HTMLElement>(".card__title", this.container);
+    this._price = ensureElement<HTMLElement>(".card__price", this.container);
+    this._category =
+      this.container.querySelector<HTMLElement>(".card__category") ?? undefined;
+    this._image =
+      this.container.querySelector<HTMLImageElement>(".card__image") ??
+      undefined;
+    this._description =
+      this.container.querySelector<HTMLElement>(".card__text") ?? undefined;
+    this._button =
+      this.container.querySelector<HTMLButtonElement>(".card__button") ??
+      undefined;
+    this._index =
+      this.container.querySelector<HTMLElement>(".basket__item-index") ??
+      undefined;
+    this._deleteButton =
+      this.container.querySelector<HTMLButtonElement>(".basket__item-delete") ??
+      undefined;
 
     if (actions.onClick) {
-      this.container.addEventListener('click', actions.onClick);
+      this.container.addEventListener("click", actions.onClick);
     }
 
     if (this._button && actions.onButtonClick) {
-      this._button.addEventListener('click', (event: MouseEvent) => {
+      this._button.addEventListener("click", (event: MouseEvent) => {
         event.stopPropagation();
         actions.onButtonClick!(event);
       });
     }
 
     if (this._deleteButton && actions.onDelete) {
-      this._deleteButton.addEventListener('click', (event: MouseEvent) => {
+      this._deleteButton.addEventListener("click", (event: MouseEvent) => {
         event.stopPropagation();
         actions.onDelete!(event);
       });
@@ -69,7 +79,7 @@ export class Card extends Component<ICard> {
   }
 
   get id(): string {
-    return this.container.dataset.id || '';
+    return this.container.dataset.id || "";
   }
 
   set title(value: string) {
@@ -93,7 +103,9 @@ export class Card extends Component<ICard> {
 
   set image(value: string | undefined) {
     if (this._image && value) {
-      const normalized = value.startsWith('http') ? value : `${CDN_URL}${value}`;
+      const normalized = value.startsWith("http")
+        ? value
+        : `${CDN_URL}${value}`;
       this._image.src = normalized;
     }
   }
@@ -105,7 +117,7 @@ export class Card extends Component<ICard> {
   }
 
   set price(value: number | null) {
-    this._price.textContent = value === null ? 'Бесценно' : `${value} синапсов`;
+    this._price.textContent = value === null ? "Бесценно" : `${value} синапсов`;
   }
 
   set buttonTitle(value: string | undefined) {
@@ -144,5 +156,3 @@ export class PreviewCard extends Card {
     super(container, actions);
   }
 }
-
-

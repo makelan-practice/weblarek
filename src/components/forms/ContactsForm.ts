@@ -1,5 +1,5 @@
-import { Form } from './Form';
-import { ensureElement } from '../../utils/utils';
+import { Form } from "./Form";
+import { ensureElement } from "../../utils/utils";
 
 export interface IContactsFormState {
   email: string;
@@ -10,20 +10,32 @@ export class ContactsForm extends Form<IContactsFormState> {
   protected _emailInput: HTMLInputElement;
   protected _phoneInput: HTMLInputElement;
   protected _state: IContactsFormState = {
-    email: '',
-    phone: '',
+    email: "",
+    phone: "",
   };
 
-  constructor(form: HTMLFormElement, actions: { onSubmit: (data: IContactsFormState) => void; onChange?: (data: Partial<IContactsFormState>) => void; }) {
+  constructor(
+    form: HTMLFormElement,
+    actions: {
+      onSubmit: (data: IContactsFormState) => void;
+      onChange?: (data: Partial<IContactsFormState>) => void;
+    }
+  ) {
     super(form, actions);
-    this._emailInput = ensureElement<HTMLInputElement>('input[name="email"]', form);
-    this._phoneInput = ensureElement<HTMLInputElement>('input[name="phone"]', form);
+    this._emailInput = ensureElement<HTMLInputElement>(
+      'input[name="email"]',
+      form
+    );
+    this._phoneInput = ensureElement<HTMLInputElement>(
+      'input[name="phone"]',
+      form
+    );
 
-    this._emailInput.addEventListener('input', () => {
+    this._emailInput.addEventListener("input", () => {
       this.email = this._emailInput.value;
     });
 
-    this._phoneInput.addEventListener('input', () => {
+    this._phoneInput.addEventListener("input", () => {
       this.phone = this._phoneInput.value;
     });
   }
@@ -44,5 +56,3 @@ export class ContactsForm extends Form<IContactsFormState> {
     this.notifyChange({ phone: this._state.phone });
   }
 }
-
-

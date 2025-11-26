@@ -1,5 +1,5 @@
-import { Component } from './base/Component';
-import { ensureElement } from '../utils/utils';
+import { Component } from "./base/Component";
+import { ensureElement } from "../utils/utils";
 
 interface IModal {
   content: HTMLElement | null;
@@ -20,11 +20,17 @@ export class Modal extends Component<IModal> {
   constructor(container: HTMLElement, actions: ModalActions = {}) {
     super(container);
     this._actions = actions;
-    this._closeButton = ensureElement<HTMLButtonElement>('.modal__close', this.container);
-    this._content = ensureElement<HTMLElement>('.modal__content', this.container);
+    this._closeButton = ensureElement<HTMLButtonElement>(
+      ".modal__close",
+      this.container
+    );
+    this._content = ensureElement<HTMLElement>(
+      ".modal__content",
+      this.container
+    );
 
-    this._closeButton.addEventListener('click', () => this.close());
-    this.container.addEventListener('mousedown', (event: MouseEvent) => {
+    this._closeButton.addEventListener("click", () => this.close());
+    this.container.addEventListener("mousedown", (event: MouseEvent) => {
       if (event.target === this.container) {
         this.close();
       }
@@ -37,11 +43,11 @@ export class Modal extends Component<IModal> {
 
   open(node: HTMLElement) {
     this.content = node;
-    this.container.classList.add('modal_active');
+    this.container.classList.add("modal_active");
   }
 
   close() {
-    this.container.classList.remove('modal_active');
+    this.container.classList.remove("modal_active");
     this.content = null;
     this._actions?.onClose?.();
   }
@@ -53,5 +59,3 @@ export class Modal extends Component<IModal> {
     };
   }
 }
-
-

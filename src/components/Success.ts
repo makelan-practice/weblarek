@@ -1,5 +1,5 @@
-import { Component } from './base/Component';
-import { ensureElement } from '../utils/utils';
+import { Component } from "./base/Component";
+import { ensureElement } from "../utils/utils";
 
 interface ISuccess {
   total: number;
@@ -15,15 +15,19 @@ export class Success extends Component<ISuccess> {
 
   constructor(container: HTMLElement, actions: SuccessActions) {
     super(container);
-    this._description = ensureElement<HTMLElement>('.order-success__description', container);
-    this._button = ensureElement<HTMLButtonElement>('.order-success__close', container);
+    this._description = ensureElement<HTMLElement>(
+      ".order-success__description",
+      container
+    );
+    this._button = ensureElement<HTMLButtonElement>(
+      ".order-success__close",
+      container
+    );
 
-    this._button.addEventListener('click', () => actions.onClose());
+    this._button.addEventListener("click", () => actions.onClose());
   }
 
   set total(value: number) {
     this._description.textContent = `Списано ${value} синапсов`;
   }
 }
-
-
