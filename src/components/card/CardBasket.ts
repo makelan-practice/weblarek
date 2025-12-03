@@ -2,7 +2,9 @@ import { IProduct, ICardActions } from "../../types";
 import { ensureElement } from "../../utils/utils";
 import { Card } from "./Card";
 
-export type TCardBasket = Pick<IProduct, "title" | "price">;
+export type TCardBasket = Pick<IProduct, "title" | "price"> & {
+  index?: number;
+};
 
 export class CardBasket extends Card<TCardBasket> {
   protected indexElement: HTMLElement;

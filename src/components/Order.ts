@@ -7,6 +7,7 @@ interface IOrder {
   payment: TPayment | null;
   address: string;
   errors: Partial<IBuyerErrors>;
+  valid?: boolean;
 }
 
 export class Order extends Component<IOrder> {

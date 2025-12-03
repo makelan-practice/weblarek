@@ -7,6 +7,7 @@ interface IContacts {
   email: string;
   phone: string;
   errors: Partial<IBuyerErrors>;
+  valid?: boolean;
 }
 
 export class Contacts extends Component<IContacts> {

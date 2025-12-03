@@ -1,7 +1,6 @@
 import { Component } from "../base/Component";
 
 export class Card<T> extends Component<T> {
-  protected title: string = "";
   protected titleElement: HTMLElement | null = null;
   protected priceElement: HTMLElement | null = null;
 
@@ -15,8 +14,7 @@ export class Card<T> extends Component<T> {
       this.container.querySelector<HTMLElement>(".card__price");
   }
 
-  setTitle(value: string): void {
-    this.title = value;
+  set title(value: string) {
     if (this.titleElement) {
       this.titleElement.textContent = value;
     }
