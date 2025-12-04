@@ -8,7 +8,10 @@ type CategoryKey = keyof typeof categoryMap;
 export type TCardPreview = Pick<
   IProduct,
   "image" | "category" | "title" | "price" | "description"
->;
+> & {
+  buttonText?: string;
+  buttonDisabled?: boolean;
+};
 
 export class CardPreview extends Card<TCardPreview> {
   protected imageElement: HTMLImageElement | null = null;

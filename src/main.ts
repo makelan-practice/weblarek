@@ -96,15 +96,9 @@ catalogModel.on("preview:changed", () => {
     category: preview.category,
     price: preview.price,
     description: preview.description,
+    buttonText: cartModel.getButtonText(preview),
+    buttonDisabled: cartModel.isButtonDisabled(preview),
   });
-
-  // Если цена отсутствует, блокируем кнопку и устанавливаем текст "Недоступно"
-  if (preview.price === null) {
-    card.buttonText = "Недоступно";
-    card.buttonDisabled = true;
-  } else {
-    card.buttonText = isInCart ? "Удалить из корзины" : "Купить";
-  }
 
   modal.render({ content: previewElement });
   modal.open();
@@ -156,7 +150,6 @@ buyerModel.on("data:changed", (eventData: { data: any }) => {
   // Обновление формы заказа (если она открыта)
   const orderElement = modalContainer.querySelector(".form[name='order']");
   if (orderElement) {
-    const allErrors = buyerModel.validate();
     const orderErrors = {
       payment: allErrors.payment,
       address: allErrors.address,
@@ -216,15 +209,9 @@ events.on("card:add", (data: { id: string }) => {
           category: preview.category,
           price: preview.price,
           description: preview.description,
+          buttonText: cartModel.getButtonText(preview),
+          buttonDisabled: cartModel.isButtonDisabled(preview),
         });
-
-        // Если цена отсутствует, блокируем кнопку и устанавливаем текст "Недоступно"
-        if (preview.price === null) {
-          card.buttonText = "Недоступно";
-          card.buttonDisabled = true;
-        } else {
-          card.buttonText = "Удалить из корзины";
-        }
       }
     }
   }
@@ -251,15 +238,9 @@ events.on("card:remove", (data: { id: string }) => {
           category: preview.category,
           price: preview.price,
           description: preview.description,
+          buttonText: cartModel.getButtonText(preview),
+          buttonDisabled: cartModel.isButtonDisabled(preview),
         });
-
-        // Если цена отсутствует, блокируем кнопку и устанавливаем текст "Недоступно"
-        if (preview.price === null) {
-          card.buttonText = "Недоступно";
-          card.buttonDisabled = true;
-        } else {
-          card.buttonText = "Купить";
-        }
       }
     }
   }

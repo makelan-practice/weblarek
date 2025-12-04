@@ -61,4 +61,21 @@ export class Cart extends EventEmitter implements IEvents {
   contains(id: string): boolean {
     return this.items.some((item) => item.id === id);
   }
+
+  /**
+   * Возвращает текст кнопки для товара с учетом его наличия в корзине и цены
+   */
+  getButtonText(product: IProduct): string {
+    if (product.price === null) {
+      return "Недоступно";
+    }
+    return this.contains(product.id) ? "Удалить из корзины" : "Купить";
+  }
+
+  /**
+   * Проверяет, должна ли кнопка быть заблокирована
+   */
+  isButtonDisabled(product: IProduct): boolean {
+    return product.price === null;
+  }
 }
