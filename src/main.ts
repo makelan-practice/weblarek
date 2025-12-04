@@ -49,6 +49,18 @@ const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 const basketElement = cloneTemplate<HTMLElement>(basketTemplate);
 const basket = new Basket(events, basketElement);
 
+// Создаем элемент формы заказа один раз из шаблона
+const orderElement = cloneTemplate<HTMLElement>(orderTemplate);
+const order = new Order(events, orderElement);
+
+// Создаем элемент окна успеха один раз из шаблона
+const successElement = cloneTemplate<HTMLElement>(successTemplate);
+const success = new Success(events, successElement);
+
+// Создаем элемент формы контактов один раз из шаблона
+const contactsElement = cloneTemplate<HTMLElement>(contactsTemplate);
+const contacts = new Contacts(events, contactsElement);
+
 // ============ Обработчики событий от моделей данных ============
 
 // Обработка изменения каталога товаров
@@ -149,13 +161,11 @@ buyerModel.on("data:changed", () => {
   const allErrors = buyerModel.validate();
 
   // Обновление формы заказа (если она открыта)
-  const orderElement = modalContainer.querySelector(".form[name='order']");
-  if (orderElement) {
+  if (modalContainer.querySelector(".form[name='order']")) {
     const orderErrors = {
       payment: allErrors.payment,
       address: allErrors.address,
     };
-    const order = new Order(events, orderElement as HTMLElement);
     order.render({
       payment: data.payment,
       address: data.address,
@@ -165,11 +175,7 @@ buyerModel.on("data:changed", () => {
   }
 
   // Обновление формы контактов (если она открыта)
-  const contactsElement = modalContainer.querySelector(
-    ".form[name='contacts']"
-  );
-  if (contactsElement) {
-    const contacts = new Contacts(events, contactsElement as HTMLElement);
+  if (modalContainer.querySelector(".form[name='contacts']")) {
     contacts.render({
       email: data.email,
       phone: data.phone,
@@ -280,8 +286,6 @@ events.on("basket:open", () => {
 
 // Оформление заказа
 events.on("basket:order", () => {
-  const orderElement = cloneTemplate<HTMLElement>(orderTemplate);
-  const order = new Order(events, orderElement);
   const data = buyerModel.getData();
   const allErrors = buyerModel.validate();
   const orderErrors = {
@@ -310,9 +314,7 @@ events.on("order:next", () => {
 
   if (!isOrderValid) {
     // Обновляем форму с ошибками
-    const orderElement = modalContainer.querySelector(".form[name='order']");
-    if (orderElement) {
-      const order = new Order(events, orderElement as HTMLElement);
+    if (modalContainer.querySelector(".form[name='order']")) {
       const data = buyerModel.getData();
       order.render({
         payment: data.payment,
@@ -325,8 +327,6 @@ events.on("order:next", () => {
   }
 
   // Переходим к форме контактов
-  const contactsElement = cloneTemplate<HTMLElement>(contactsTemplate);
-  const contacts = new Contacts(events, contactsElement);
   const data = buyerModel.getData();
   const contactsErrors = buyerModel.validate();
   const isValid = Object.keys(contactsErrors).length === 0;
@@ -349,11 +349,7 @@ events.on("contacts:submit", async () => {
 
   if (emailError || phoneError) {
     // Обновляем форму с ошибками
-    const contactsElement = modalContainer.querySelector(
-      ".form[name='contacts']"
-    );
-    if (contactsElement) {
-      const contacts = new Contacts(events, contactsElement as HTMLElement);
+    if (modalContainer.querySelector(".form[name='contacts']")) {
       const data = buyerModel.getData();
       contacts.render({
         email: data.email,
@@ -384,8 +380,6 @@ events.on("contacts:submit", async () => {
     console.log("Заказ создан:", response);
 
     // Показываем окно успеха
-    const successElement = cloneTemplate<HTMLElement>(successTemplate);
-    const success = new Success(events, successElement);
     success.render({ total: response.total });
 
     modal.render({ content: successElement });
