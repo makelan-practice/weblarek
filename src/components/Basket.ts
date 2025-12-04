@@ -41,17 +41,7 @@ export class Basket extends Component<IBasket> {
   }
 
   set items(value: HTMLElement[]) {
-    this.listElement.innerHTML = "";
-    if (value.length === 0) {
-      const emptyMessage = document.createElement("li");
-      emptyMessage.textContent = "Корзина пуста";
-      emptyMessage.className = "basket__empty";
-      this.listElement.appendChild(emptyMessage);
-    } else {
-      value.forEach((item) => {
-        this.listElement.appendChild(item);
-      });
-    }
+    this.listElement.replaceChildren(...value);
     this.buttonElement.disabled = value.length === 0;
   }
 }

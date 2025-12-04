@@ -131,7 +131,7 @@ catalogModel.on("preview:changed", (data: { preview: any }) => {
     card.buttonText = "Недоступно";
     card.buttonDisabled = true;
   } else {
-    card.isInCart = isInCart;
+    card.buttonText = isInCart ? "Удалить из корзины" : "Купить";
   }
 
   modal.render({ content: previewElement });
@@ -248,7 +248,7 @@ events.on("card:add", (data: { id: string }) => {
           card.buttonText = "Недоступно";
           card.buttonDisabled = true;
         } else {
-          card.isInCart = true;
+          card.buttonText = "Удалить из корзины";
         }
       }
     }
@@ -283,7 +283,7 @@ events.on("card:remove", (data: { id: string }) => {
           card.buttonText = "Недоступно";
           card.buttonDisabled = true;
         } else {
-          card.isInCart = false;
+          card.buttonText = "Купить";
         }
       }
     }

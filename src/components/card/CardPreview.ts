@@ -8,9 +8,7 @@ type CategoryKey = keyof typeof categoryMap;
 export type TCardPreview = Pick<
   IProduct,
   "image" | "category" | "title" | "price" | "description"
-> & {
-  isInCart?: boolean;
-};
+>;
 
 export class CardPreview extends Card<TCardPreview> {
   protected imageElement: HTMLImageElement | null = null;
@@ -72,9 +70,5 @@ export class CardPreview extends Card<TCardPreview> {
 
   set buttonDisabled(value: boolean) {
     this.buttonElement.disabled = value;
-  }
-
-  set isInCart(value: boolean) {
-    this.buttonText = value ? "Удалить из корзины" : "Купить";
   }
 }
