@@ -30,10 +30,6 @@ export class Modal extends Component<IModal> {
       this.container
     );
 
-    this.setupEventListeners();
-  }
-
-  private setupEventListeners(): void {
     // Закрытие по кнопке
     this.closeButton.addEventListener("click", () => {
       this.close();
