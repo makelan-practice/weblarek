@@ -48,8 +48,8 @@ const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 // ============ Обработчики событий от моделей данных ============
 
 // Обработка изменения каталога товаров
-catalogModel.on("items:changed", (data: { items: any[] }) => {
-  const items = data.items;
+catalogModel.on("items:changed", () => {
+  const items = catalogModel.getItems();
 
   const cards = items.map((item) => {
     const cardElement = cloneTemplate<HTMLElement>(cardCatalogTemplate);
@@ -105,8 +105,8 @@ catalogModel.on("preview:changed", () => {
 });
 
 // Обработка изменения содержимого корзины
-cartModel.on("items:changed", (data: { items: any[] }) => {
-  const items = data.items;
+cartModel.on("items:changed", () => {
+  const items = cartModel.getItems();
   const total = cartModel.getTotal();
   const count = cartModel.getCount();
 
@@ -143,8 +143,8 @@ cartModel.on("items:changed", (data: { items: any[] }) => {
 });
 
 // Обработка изменения данных покупателя
-buyerModel.on("data:changed", (eventData: { data: any }) => {
-  const data = eventData.data;
+buyerModel.on("data:changed", () => {
+  const data = buyerModel.getData();
   const allErrors = buyerModel.validate();
 
   // Обновление формы заказа (если она открыта)
