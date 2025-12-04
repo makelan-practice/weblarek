@@ -16,7 +16,43 @@ import { CardCatalog } from "./components/card/CardCatalog";
 import { CardPreview } from "./components/card/CardPreview";
 import { CardBasket } from "./components/card/CardBasket";
 import { EventEmitter } from "./components/base/Events";
-import { IOrderRequest } from "./types";
+import { IOrderRequest, IProduct } from "./types";
+
+// ============ Вспомогательные функции ============
+
+/**
+ * Создает и рендерит CardPreview с обработчиком клика для добавления/удаления из корзины
+ */
+function createCardPreview(
+  previewElement: HTMLElement,
+  preview: IProduct,
+  events: EventEmitter,
+  cartModel: Cart
+): CardPreview {
+  const isInCart = cartModel.contains(preview.id);
+
+  const card = new CardPreview(previewElement, {
+    onClick: () => {
+      if (isInCart) {
+        events.emit("card:remove", { id: preview.id });
+      } else {
+        events.emit("card:add", { id: preview.id });
+      }
+    },
+  });
+
+  card.render({
+    title: preview.title,
+    image: `${CDN_URL}/${preview.image}`,
+    category: preview.category,
+    price: preview.price,
+    description: preview.description,
+    buttonText: cartModel.getButtonText(preview),
+    buttonDisabled: cartModel.isButtonDisabled(preview),
+  });
+
+  return card;
+}
 
 // Инициализация моделей данных
 const catalogModel = new Catalog();
@@ -61,6 +97,9 @@ const success = new Success(events, successElement);
 const contactsElement = cloneTemplate<HTMLElement>(contactsTemplate);
 const contacts = new Contacts(events, contactsElement);
 
+// Состояние текущего элемента preview
+let currentPreviewElement: HTMLElement | null = null;
+
 // ============ Обработчики событий от моделей данных ============
 
 // Обработка изменения каталога товаров
@@ -91,30 +130,14 @@ catalogModel.on("items:changed", () => {
 // Обработка изменения выбранного товара для просмотра
 catalogModel.on("preview:changed", () => {
   const preview = catalogModel.getPreview();
-  if (!preview) return;
+  if (!preview) {
+    currentPreviewElement = null;
+    return;
+  }
 
   const previewElement = cloneTemplate<HTMLElement>(cardPreviewTemplate);
-  const isInCart = cartModel.contains(preview.id);
-
-  const card = new CardPreview(previewElement, {
-    onClick: () => {
-      if (isInCart) {
-        events.emit("card:remove", { id: preview.id });
-      } else {
-        events.emit("card:add", { id: preview.id });
-      }
-    },
-  });
-
-  card.render({
-    title: preview.title,
-    image: `${CDN_URL}/${preview.image}`,
-    category: preview.category,
-    price: preview.price,
-    description: preview.description,
-    buttonText: cartModel.getButtonText(preview),
-    buttonDisabled: cartModel.isButtonDisabled(preview),
-  });
+  currentPreviewElement = previewElement;
+  createCardPreview(previewElement, preview, events, cartModel);
 
   modal.render({ content: previewElement });
   modal.open();
@@ -154,29 +177,8 @@ cartModel.on("items:changed", () => {
 
   // Обновление preview, если он открыт
   const preview = catalogModel.getPreview();
-  if (preview) {
-    const previewElement = modalContainer.querySelector(".card_full");
-    if (previewElement) {
-      const isInCart = cartModel.contains(preview.id);
-      const card = new CardPreview(previewElement as HTMLElement, {
-        onClick: () => {
-          if (isInCart) {
-            events.emit("card:remove", { id: preview.id });
-          } else {
-            events.emit("card:add", { id: preview.id });
-          }
-        },
-      });
-      card.render({
-        title: preview.title,
-        image: `${CDN_URL}/${preview.image}`,
-        category: preview.category,
-        price: preview.price,
-        description: preview.description,
-        buttonText: cartModel.getButtonText(preview),
-        buttonDisabled: cartModel.isButtonDisabled(preview),
-      });
-    }
+  if (preview && currentPreviewElement) {
+    createCardPreview(currentPreviewElement, preview, events, cartModel);
   }
 });
 
@@ -325,6 +327,7 @@ events.on("contacts:phone:change", (data: { phone: string }) => {
 // Закрытие модального окна
 events.on("modal:close", () => {
   catalogModel.setPreview(null);
+  currentPreviewElement = null;
 });
 
 // Закрытие окна успеха
