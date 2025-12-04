@@ -1,5 +1,5 @@
 import { ensureElement } from "../utils/utils";
-import { Component } from "./base/Component";
+import { Form } from "./base/Form";
 import { IEvents } from "./base/Events";
 import { IBuyerErrors } from "../types";
 
@@ -10,17 +10,15 @@ interface IContacts {
   valid?: boolean;
 }
 
-export class Contacts extends Component<IContacts> {
+export class Contacts extends Form<IContacts> {
   protected emailInput: HTMLInputElement;
   protected phoneInput: HTMLInputElement;
-  protected submitButton: HTMLButtonElement;
-  protected errorsElement: HTMLElement;
 
   constructor(
     protected events: IEvents,
     container: HTMLElement
   ) {
-    super(container);
+    super(events, container);
 
     this.emailInput = ensureElement<HTMLInputElement>(
       'input[name="email"]',
@@ -30,16 +28,19 @@ export class Contacts extends Component<IContacts> {
       'input[name="phone"]',
       this.container
     );
-    this.submitButton = ensureElement<HTMLButtonElement>(
-      'button[type="submit"]',
-      this.container
-    );
-    this.errorsElement = ensureElement<HTMLElement>(
-      ".form__errors",
-      this.container
-    );
 
     this.setupEventListeners();
+  }
+
+  protected getSubmitEventName(): string {
+    return "contacts:submit";
+  }
+
+  protected getErrorMessages(errors: Partial<IBuyerErrors>): string[] {
+    const errorMessages: string[] = [];
+    if (errors.email) errorMessages.push(errors.email);
+    if (errors.phone) errorMessages.push(errors.phone);
+    return errorMessages;
   }
 
   private setupEventListeners(): void {
@@ -56,14 +57,6 @@ export class Contacts extends Component<IContacts> {
         phone: this.phoneInput.value,
       });
     });
-
-    // Обработка submit
-    if (this.container instanceof HTMLFormElement) {
-      this.container.addEventListener("submit", (e) => {
-        e.preventDefault();
-        this.events.emit("contacts:submit");
-      });
-    }
   }
 
   set email(value: string) {
@@ -72,17 +65,5 @@ export class Contacts extends Component<IContacts> {
 
   set phone(value: string) {
     this.phoneInput.value = value;
-  }
-
-  set errors(value: Partial<IBuyerErrors>) {
-    const errorMessages: string[] = [];
-    if (value.email) errorMessages.push(value.email);
-    if (value.phone) errorMessages.push(value.phone);
-
-    this.errorsElement.textContent = errorMessages.join(", ");
-  }
-
-  set valid(value: boolean) {
-    this.submitButton.disabled = !value;
   }
 }
