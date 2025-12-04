@@ -45,32 +45,6 @@ const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
 const contactsTemplate = ensureElement<HTMLTemplateElement>("#contacts");
 const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 
-// ============ Вспомогательные функции ============
-
-/**
- * Валидация формы заказа (проверяет только payment и address)
- */
-function validateOrderForm(buyer: Buyer): {
-  errors: Partial<Record<keyof import("./types").IBuyer, string>>;
-  isValid: boolean;
-} {
-  const errors: Partial<Record<keyof import("./types").IBuyer, string>> = {};
-  const data = buyer.getData();
-
-  if (!data.payment || data.payment === null) {
-    errors.payment = "Не выбран способ оплаты";
-  }
-
-  if (!data.address || data.address.trim() === "") {
-    errors.address = "Укажите адрес доставки";
-  }
-
-  return {
-    errors,
-    isValid: Object.keys(errors).length === 0,
-  };
-}
-
 // ============ Обработчики событий от моделей данных ============
 
 // Обработка изменения каталога товаров
@@ -185,14 +159,18 @@ buyerModel.on("data:changed", (eventData: { data: any }) => {
   // Обновление формы заказа (если она открыта)
   const orderElement = modalContainer.querySelector(".form[name='order']");
   if (orderElement) {
-    const orderValidation = validateOrderForm(buyerModel);
+    const allErrors = buyerModel.validate();
+    const orderErrors = {
+      payment: allErrors.payment,
+      address: allErrors.address,
+    };
     const order = new Order(events, orderElement as HTMLElement);
     order.render({
       payment: data.payment,
       address: data.address,
-      errors: orderValidation.errors,
+      errors: orderErrors,
     });
-    order.valid = orderValidation.isValid;
+    order.valid = !orderErrors.payment && !orderErrors.address;
   }
 
   // Обновление формы контактов (если она открыта)
@@ -329,23 +307,32 @@ events.on("basket:order", () => {
   const orderElement = cloneTemplate<HTMLElement>(orderTemplate);
   const order = new Order(events, orderElement);
   const data = buyerModel.getData();
-  const orderValidation = validateOrderForm(buyerModel);
+  const allErrors = buyerModel.validate();
+  const orderErrors = {
+    payment: allErrors.payment,
+    address: allErrors.address,
+  };
 
   order.render({
     payment: data.payment as any,
     address: data.address,
-    errors: orderValidation.errors,
+    errors: orderErrors,
   });
-  order.valid = orderValidation.isValid;
+  order.valid = !orderErrors.payment && !orderErrors.address;
 
   modal.render({ content: orderElement });
 });
 
 // Переход ко второй форме оформления заказа
 events.on("order:next", () => {
-  const orderValidation = validateOrderForm(buyerModel);
+  const allErrors = buyerModel.validate();
+  const orderErrors = {
+    payment: allErrors.payment,
+    address: allErrors.address,
+  };
+  const isOrderValid = !orderErrors.payment && !orderErrors.address;
 
-  if (!orderValidation.isValid) {
+  if (!isOrderValid) {
     // Обновляем форму с ошибками
     const orderElement = modalContainer.querySelector(".form[name='order']");
     if (orderElement) {
@@ -354,7 +341,7 @@ events.on("order:next", () => {
       order.render({
         payment: data.payment,
         address: data.address,
-        errors: orderValidation.errors,
+        errors: orderErrors,
       });
       order.valid = false;
     }
@@ -365,13 +352,13 @@ events.on("order:next", () => {
   const contactsElement = cloneTemplate<HTMLElement>(contactsTemplate);
   const contacts = new Contacts(events, contactsElement);
   const data = buyerModel.getData();
-  const allErrors = buyerModel.validate();
-  const isValid = Object.keys(allErrors).length === 0;
+  const contactsErrors = buyerModel.validate();
+  const isValid = Object.keys(contactsErrors).length === 0;
 
   contacts.render({
     email: data.email,
     phone: data.phone,
-    errors: { email: allErrors.email, phone: allErrors.phone },
+    errors: { email: contactsErrors.email, phone: contactsErrors.phone },
     valid: isValid,
   });
 
