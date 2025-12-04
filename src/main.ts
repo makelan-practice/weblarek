@@ -73,8 +73,8 @@ catalogModel.on("items:changed", (data: { items: any[] }) => {
 });
 
 // Обработка изменения выбранного товара для просмотра
-catalogModel.on("preview:changed", (data: { preview: any }) => {
-  const preview = data.preview;
+catalogModel.on("preview:changed", () => {
+  const preview = catalogModel.getPreview();
   if (!preview) return;
 
   const previewElement = cloneTemplate<HTMLElement>(cardPreviewTemplate);
