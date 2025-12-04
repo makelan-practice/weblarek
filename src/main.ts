@@ -45,6 +45,10 @@ const orderTemplate = ensureElement<HTMLTemplateElement>("#order");
 const contactsTemplate = ensureElement<HTMLTemplateElement>("#contacts");
 const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 
+// Создаем элемент корзины один раз из шаблона
+const basketElement = cloneTemplate<HTMLElement>(basketTemplate);
+const basket = new Basket(events, basketElement);
+
 // ============ Обработчики событий от моделей данных ============
 
 // Обработка изменения каталога товаров
@@ -114,10 +118,7 @@ cartModel.on("items:changed", () => {
   header.render({ counter: count });
 
   // Обновление корзины (если она открыта)
-  const basketElement = modalContainer.querySelector(".basket");
-  if (basketElement) {
-    const basket = new Basket(events, basketElement as HTMLElement);
-
+  if (modalContainer.querySelector(".basket")) {
     const cardElements = items.map((item, index) => {
       const cardElement = cloneTemplate<HTMLElement>(cardBasketTemplate);
       const card = new CardBasket(cardElement, {
@@ -248,8 +249,6 @@ events.on("card:remove", (data: { id: string }) => {
 
 // Открытие корзины
 events.on("basket:open", () => {
-  const basketElement = cloneTemplate<HTMLElement>(basketTemplate);
-  const basket = new Basket(events, basketElement);
   const items = cartModel.getItems();
   const total = cartModel.getTotal();
 
