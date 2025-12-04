@@ -69,8 +69,7 @@ catalogModel.on("items:changed", (data: { items: any[] }) => {
     return cardElement;
   });
 
-  galleryContainer.innerHTML = "";
-  cards.forEach((card) => galleryContainer.appendChild(card));
+  galleryContainer.replaceChildren(...cards);
 });
 
 // Обработка изменения выбранного товара для просмотра
