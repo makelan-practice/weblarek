@@ -50,9 +50,8 @@ const successTemplate = ensureElement<HTMLTemplateElement>("#success");
 // Обработка изменения каталога товаров
 catalogModel.on("items:changed", (data: { items: any[] }) => {
   const items = data.items;
-  const cards: HTMLElement[] = [];
 
-  items.forEach((item) => {
+  const cards = items.map((item) => {
     const cardElement = cloneTemplate<HTMLElement>(cardCatalogTemplate);
     const card = new CardCatalog(cardElement, {
       onClick: () => {
@@ -67,7 +66,7 @@ catalogModel.on("items:changed", (data: { items: any[] }) => {
       price: item.price,
     });
 
-    cards.push(cardElement);
+    return cardElement;
   });
 
   galleryContainer.innerHTML = "";
@@ -125,9 +124,8 @@ cartModel.on("items:changed", (data: { items: any[] }) => {
   const basketElement = modalContainer.querySelector(".basket");
   if (basketElement) {
     const basket = new Basket(events, basketElement as HTMLElement);
-    const cardElements: HTMLElement[] = [];
 
-    items.forEach((item, index) => {
+    const cardElements = items.map((item, index) => {
       const cardElement = cloneTemplate<HTMLElement>(cardBasketTemplate);
       const card = new CardBasket(cardElement, {
         onClick: () => {
@@ -141,7 +139,7 @@ cartModel.on("items:changed", (data: { items: any[] }) => {
       });
       card.index = index + 1;
 
-      cardElements.push(cardElement);
+      return cardElement;
     });
 
     basket.render({
@@ -274,9 +272,8 @@ events.on("basket:open", () => {
   const basket = new Basket(events, basketElement);
   const items = cartModel.getItems();
   const total = cartModel.getTotal();
-  const cardElements: HTMLElement[] = [];
 
-  items.forEach((item, index) => {
+  const cardElements = items.map((item, index) => {
     const cardElement = cloneTemplate<HTMLElement>(cardBasketTemplate);
     const card = new CardBasket(cardElement, {
       onClick: () => {
@@ -290,7 +287,7 @@ events.on("basket:open", () => {
       index: index + 1,
     });
 
-    cardElements.push(cardElement);
+    return cardElement;
   });
 
   basket.render({
