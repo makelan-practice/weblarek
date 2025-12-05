@@ -83,4 +83,8 @@ export class Modal extends Component<IModal> {
     this.container.classList.remove("modal_active");
     this.events.emit("modal:close");
   }
+
+  isOpen(): boolean {
+    return this.container.classList.contains("modal_active");
+  }
 }

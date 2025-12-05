@@ -129,7 +129,8 @@ catalogModel.on("preview:changed", () => {
   const preview = catalogModel.getPreview();
   if (!preview) {
     // Если preview сброшен, закрываем модальное окно, если оно открыто с preview
-    if (modal.hasContentType("cardPreview")) {
+    // Проверяем, что модальное окно действительно открыто, чтобы избежать рекурсии
+    if (modal.isOpen() && modal.hasContentType("cardPreview")) {
       modal.close();
     }
     return;
