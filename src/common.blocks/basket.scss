@@ -18,8 +18,12 @@
     opacity: 0.3;
     display: block;
     text-align: left;
-    font-style: regular;
+    font-family: $font;
     font-weight: 400;
+    font-style: normal;
+    font-size: 30px;
+    line-height: 100%;
+    letter-spacing: 0%;
   }
 
   &__item {
