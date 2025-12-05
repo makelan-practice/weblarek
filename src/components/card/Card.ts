@@ -1,3 +1,4 @@
+import { ensureElement } from "../../utils/utils";
 import { Component } from "../base/Component";
 
 export class Card<T> extends Component<T> {
@@ -8,10 +9,14 @@ export class Card<T> extends Component<T> {
     super(container);
 
     // Инициализация элементов, если они существуют
-    this.titleElement =
-      this.container.querySelector<HTMLElement>(".card__title");
-    this.priceElement =
-      this.container.querySelector<HTMLElement>(".card__price");
+    this.titleElement = ensureElement<HTMLElement>(
+      ".card__title",
+      this.container
+    );
+    this.priceElement = ensureElement<HTMLElement>(
+      ".card__price",
+      this.container
+    );
   }
 
   set title(value: string) {
