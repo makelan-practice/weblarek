@@ -126,15 +126,11 @@ catalogModel.on("items:changed", () => {
 
 // Обработка изменения выбранного товара для просмотра
 catalogModel.on("preview:changed", () => {
-  const t = modal.content;
-  console.log(t);
-
   const preview = catalogModel.getPreview();
   if (!preview) {
     // Если preview сброшен, закрываем модальное окно, если оно открыто с preview
     if (modal.hasContentType("cardPreview")) {
       modal.close();
-      modal.content = null; // Очищаем контент
     }
     return;
   }
