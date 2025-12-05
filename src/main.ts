@@ -97,9 +97,6 @@ const success = new Success(events, successElement);
 const contactsElement = cloneTemplate<HTMLElement>(contactsTemplate);
 const contacts = new Contacts(events, contactsElement);
 
-// Состояние текущего элемента preview
-let currentPreviewElement: HTMLElement | null = null;
-
 // ============ Обработчики событий от моделей данных ============
 
 // Обработка изменения каталога товаров
@@ -129,14 +126,20 @@ catalogModel.on("items:changed", () => {
 
 // Обработка изменения выбранного товара для просмотра
 catalogModel.on("preview:changed", () => {
+  const t = modal.content;
+  console.log(t);
+
   const preview = catalogModel.getPreview();
   if (!preview) {
-    currentPreviewElement = null;
+    // Если preview сброшен, закрываем модальное окно, если оно открыто с preview
+    if (modal.hasContentType("cardPreview")) {
+      modal.close();
+      modal.content = null; // Очищаем контент
+    }
     return;
   }
 
   const previewElement = cloneTemplate<HTMLElement>(cardPreviewTemplate);
-  currentPreviewElement = previewElement;
   createCardPreview(previewElement, preview, events, cartModel);
 
   modal.render({ content: previewElement });
@@ -177,8 +180,12 @@ cartModel.on("items:changed", () => {
 
   // Обновление preview, если он открыт
   const preview = catalogModel.getPreview();
-  if (preview && currentPreviewElement) {
-    createCardPreview(currentPreviewElement, preview, events, cartModel);
+  if (preview && modal.hasContentType("cardPreview")) {
+    // Получаем элемент
+    const previewElement = modal.content;
+    if (previewElement) {
+      createCardPreview(previewElement, preview, events, cartModel);
+    }
   }
 });
 
@@ -327,7 +334,6 @@ events.on("contacts:phone:change", (data: { phone: string }) => {
 // Закрытие модального окна
 events.on("modal:close", () => {
   catalogModel.setPreview(null);
-  currentPreviewElement = null;
 });
 
 // Закрытие окна успеха

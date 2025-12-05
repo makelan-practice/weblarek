@@ -6,6 +6,21 @@ interface IModal {
   content: HTMLElement | null;
 }
 
+export type ModalContentType =
+  | "cardPreview"
+  | "basket"
+  | "order"
+  | "contacts"
+  | "success";
+
+const CONTENT_TYPE_SELECTORS: Record<ModalContentType, string> = {
+  cardPreview: ".card_full",
+  basket: ".basket",
+  order: "form[name='order']",
+  contacts: "form[name='contacts']",
+  success: ".order-success",
+};
+
 export class Modal extends Component<IModal> {
   protected containerElement: HTMLElement;
   protected closeButton: HTMLButtonElement;
@@ -50,6 +65,14 @@ export class Modal extends Component<IModal> {
     } else {
       this.contentElement.innerHTML = "";
     }
+  }
+  get content(): HTMLElement | null {
+    return this.contentElement.firstElementChild as HTMLElement | null;
+  }
+
+  hasContentType(type: ModalContentType): boolean {
+    const selector = CONTENT_TYPE_SELECTORS[type];
+    return this.contentElement.querySelector(selector) !== null;
   }
 
   open(): void {
