@@ -28,19 +28,29 @@ function createCardPreview(
   preview: IProduct,
   events: EventEmitter,
   cartModel: Cart
-): CardPreview {
-  const isInCart = cartModel.contains(preview.id);
-
+) {
   const card = new CardPreview(previewElement, {
     onClick: () => {
+      const isInCart = cartModel.contains(preview.id);
+
       if (isInCart) {
         events.emit("card:remove", { id: preview.id });
       } else {
         events.emit("card:add", { id: preview.id });
       }
+
+      renderCardPreview(card, preview, cartModel);
     },
   });
 
+  renderCardPreview(card, preview, cartModel);
+}
+
+function renderCardPreview(
+  card: CardPreview,
+  preview: IProduct,
+  cartModel: Cart
+): void {
   card.render({
     title: preview.title,
     image: `${CDN_URL}/${preview.image}`,
@@ -50,8 +60,6 @@ function createCardPreview(
     buttonText: cartModel.getButtonText(preview),
     buttonDisabled: cartModel.isButtonDisabled(preview),
   });
-
-  return card;
 }
 
 // Инициализация моделей данных
@@ -128,11 +136,6 @@ catalogModel.on("items:changed", () => {
 catalogModel.on("preview:changed", () => {
   const preview = catalogModel.getPreview();
   if (!preview) {
-    // Если preview сброшен, закрываем модальное окно, если оно открыто с preview
-    // Проверяем, что модальное окно действительно открыто, чтобы избежать рекурсии
-    if (modal.isOpen() && modal.hasContentType("cardPreview")) {
-      modal.close();
-    }
     return;
   }
 
@@ -174,16 +177,6 @@ cartModel.on("items:changed", () => {
     items: cardElements,
     total: total,
   });
-
-  // Обновление preview, если он открыт
-  const preview = catalogModel.getPreview();
-  if (preview && modal.hasContentType("cardPreview")) {
-    // Получаем элемент
-    const previewElement = modal.content;
-    if (previewElement) {
-      createCardPreview(previewElement, preview, events, cartModel);
-    }
-  }
 });
 
 // Обработка изменения данных покупателя
